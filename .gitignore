@@ -1,0 +1,28 @@
+## 3️⃣ Crear el `.gitignore`
+
+En la raíz del proyecto verifica si ya existe un `.gitignore`. Si no existe, créalo igual que el `.env`.
+
+Pega este contenido completo:
+```
+# Dependencias
+node_modules
+
+# Build
+dist
+dist-ssr
+
+# Variables de entorno - NUNCA subir a GitHub
+.env
+.env.local
+.env.production
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/settings.json
