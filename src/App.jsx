@@ -3,8 +3,10 @@ import { useState, useMemo } from "react";
 import { CATEGORIES } from "./constants/categories";
 import { mesActual } from "./constants/utils";
 import { useRegistros } from "./hooks/useRegistros";
+import { useAuth } from "./hooks/useAuth";
 import { styles } from "./styles/styles";
 
+import Login        from "./components/Login";
 import Header       from "./components/Header";
 import StatsCards   from "./components/StatsCards";
 import MainTabs     from "./components/MainTabs";
@@ -16,6 +18,8 @@ import AgregarForm  from "./components/pages/AgregarForm";
 import Historial    from "./components/pages/Historial";
 
 export default function App() {
+  const { usuario, cargando: cargandoAuth, cerrarSesion } = useAuth();
+
   const [vista,   setVista]   = useState("mes");
   const [tab,     setTab]     = useState("resumen");
   const [periodo, setPeriodo] = useState(mesActual());
@@ -50,6 +54,18 @@ export default function App() {
     setTab("agregar");
   };
 
+  // Mientras verifica si hay sesión activa
+  if (cargandoAuth) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#0D0D1A", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ color: "#6060A0", fontSize: 14 }}>Cargando...</span>
+      </div>
+    );
+  }
+
+  // Si no hay sesión, mostrar login
+  if (!usuario) return <Login />;
+
   return (
     <div style={styles.root}>
       <Header
@@ -57,6 +73,8 @@ export default function App() {
         vista={vista}
         setVista={setVista}
         periodo={periodo}
+        usuario={usuario}
+        cerrarSesion={cerrarSesion}
       />
 
       {vista === "mes" && (

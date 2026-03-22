@@ -16,7 +16,9 @@ const FORM_INICIAL = {
   nota:      "",
 };
 
-const UID_TEMPORAL = "usuario1";
+// ── ID compartido para la pareja ──────────────────────────────
+// Ambos usuarios ven y editan los mismos registros
+const ID_COMPARTIDO = "motogains_familia";
 
 export function useRegistros(vista, periodo) {
   const [registros,     setRegistros]     = useState([]);
@@ -26,26 +28,21 @@ export function useRegistros(vista, periodo) {
   const [toast,         setToast]         = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
 
- useEffect(() => {
-  setCargando(true);
-  const { desde, hasta } = getRango(vista, periodo);
-
-  const unsubscribe = escucharRegistros(
-    UID_TEMPORAL,
-    desde,
-    hasta,
-    (datos) => {
-      setRegistros(datos);
-      setCargando(false);  // ← asegura que siempre se ejecuta
-    }
-  );
-
-  // Limpia y resetea al cambiar de período
-  return () => {
-    unsubscribe();
+  useEffect(() => {
     setCargando(true);
-  };
-}, [vista, periodo.anio, periodo.mes]);
+    const { desde, hasta } = getRango(vista, periodo);
+
+    const unsubscribe = escucharRegistros(
+      ID_COMPARTIDO,
+      desde,
+      hasta,
+      (datos) => {
+        setRegistros(datos);
+        setCargando(false);
+      }
+    );
+    return () => unsubscribe();
+  }, [vista, periodo.anio, periodo.mes]);
 
   const showToast = (msg, type = "ok") => {
     setToast({ msg, type });
@@ -64,11 +61,11 @@ export function useRegistros(vista, periodo) {
     const tipo = CATEGORIES[form.categoria].tipo;
     try {
       if (editId !== null) {
-        await actualizarRegistro(UID_TEMPORAL, editId, { ...form, tipo });
+        await actualizarRegistro(ID_COMPARTIDO, editId, { ...form, tipo });
         showToast("Registro actualizado ✓");
         setEditId(null);
       } else {
-        await agregarRegistro(UID_TEMPORAL, { ...form, tipo });
+        await agregarRegistro(ID_COMPARTIDO, { ...form, tipo });
         showToast("Registro añadido ✓");
       }
       setForm(FORM_INICIAL);
@@ -92,7 +89,7 @@ export function useRegistros(vista, periodo) {
 
   const handleDelete = async (id) => {
     try {
-      await eliminarRegistro(UID_TEMPORAL, id);
+      await eliminarRegistro(ID_COMPARTIDO, id);
       setConfirmDelete(null);
       showToast("Eliminado", "error");
     } catch (error) {
