@@ -5,21 +5,18 @@ import { useAuth } from "../hooks/useAuth";
 export default function Login() {
   const { iniciarSesion, iniciarSesionGoogle, registrarse } = useAuth();
 
-  const [modo,          setModo]          = useState("login");
   const [email,         setEmail]         = useState("");
   const [password,      setPassword]      = useState("");
-  const [nombre,        setNombre]        = useState("");
   const [error,         setError]         = useState("");
   const [cargando,      setCargando]      = useState(false);
   const [verPassword,   setVerPassword]   = useState(false); // ← nuevo
 
   const handleSubmit = async () => {
     if (!email || !password) { setError("Por favor completa todos los campos."); return; }
-    if (modo === "registro" && !nombre) { setError("Por favor ingresa tu nombre."); return; }
+    
     setCargando(true); setError("");
     try {
-      if (modo === "login") await iniciarSesion(email, password);
-      else await registrarse(email, password, nombre);
+     await iniciarSesion(email, password);
     } catch (e) {
       setError(traducirError(e.code));
     } finally { setCargando(false); }
@@ -55,23 +52,8 @@ export default function Login() {
           <p style={s.subtitle}>Control financiero para tu moto</p>
         </div>
 
-        <div style={s.tabs}>
-          <button onClick={() => { setModo("login"); setError(""); }}
-            style={{ ...s.tab, ...(modo === "login" ? s.tabActivo : {}) }}>
-            Iniciar sesión
-          </button>
-          <button onClick={() => { setModo("registro"); setError(""); }}
-            style={{ ...s.tab, ...(modo === "registro" ? s.tabActivo : {}) }}>
-            Registrarse
-          </button>
-        </div>
-
         <div style={s.form}>
-          {modo === "registro" && (
-            <input type="text" placeholder="Tu nombre" value={nombre}
-              onChange={(e) => setNombre(e.target.value)} style={s.input} />
-          )}
-
+        
           <input type="email" placeholder="Correo electrónico" value={email}
             onChange={(e) => setEmail(e.target.value)} style={s.input} />
 
@@ -99,7 +81,7 @@ export default function Login() {
 
           <button onClick={handleSubmit} disabled={cargando}
             style={{ ...s.btnPrimary, opacity: cargando ? 0.7 : 1 }}>
-            {cargando ? "Cargando..." : modo === "login" ? "Entrar" : "Crear cuenta"}
+            <p>Iniciar sesión</p>
           </button>
 
           <div style={s.separador}>
